@@ -4,23 +4,16 @@ exports.helloController = (req, res) => {
   res.send("hello from category controller");
 };
 
-//to insert
-exports.postCategory = async (req, res) => {
+exports.postCategory = (req, res) => {
   const category = new Category(req.body);
-
-  try {
-    const existingCategory = await Category.findOne({ category_Name: category.category_Name });
-
-    if (existingCategory) {
-      return res.status(400).json({ error: "Category must be unique" });
-    }
-
-    const savedCategory = await category.save();
-
-    res.json({ category: savedCategory });
-  } catch (error) {
-    res.status(400).json({ error: "Failed to insert category" });
-  }
+  category
+    .save()
+    .then((category) => {
+      res.json({ category });
+    })
+    .catch((error) => {
+      res.status(400).json({ error });
+    });
 };
 
 //to fetch
