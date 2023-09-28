@@ -5,16 +5,22 @@ exports.helloController = (req, res) => {
 };
 
 //to insert
-exports.postCategory = (req, res) => {
+exports.postCategory = async (req, res) => {
   const category = new Category(req.body);
-  category
-    .save()
-    .then((savedCategory) => {
-      res.json({ category: savedCategory });
-    })
-    .catch((error) => {
-      res.status(400).json({ error: "failed to insert category" });
-    });
+
+  try {
+    const existingCategory = await Category.findOne({ category_Name: category.category_Name });
+
+    if (existingCategory) {
+      return res.status(400).json({ error: "Category must be unique" });
+    }
+
+    const savedCategory = await category.save();
+
+    res.json({ category: savedCategory });
+  } catch (error) {
+    res.status(400).json({ error: "Failed to insert category" });
+  }
 };
 
 //to fetch
@@ -43,4 +49,45 @@ exports.getSingleCategory = (req, res, next, id) => {
 //to fetch categpry data related to single id
 exports.getCategoryDetail = (req, res) => {
   res.json(req.category);
+};
+
+//update category
+exports.updateCategory = (req, res) => {
+  let category = req.category;
+  category.category_Name = req.body.category_Name;
+  category
+    .save()
+    .then((result) => {
+      res.json({ result });
+    })
+    .catch((error) => {
+      res.status(400).json({ error: "failed to update" });
+    });
+};
+
+//to delete category
+// exports.deleteCategory = (req, res) => {
+//   let category = req.category;
+//   category
+//     .remove()
+//     .then((result) => {
+//       res.json({ message: "category delete sucessfully" });
+//     })
+//     .catch((error) => {
+//       res.status(400).json({ error: "failed to delete" });
+//     });
+// };
+
+// To delete a category
+exports.deleteCategory = (req, res) => {
+  let category = req.category;
+
+  category
+    .deleteOne()
+    .then((result) => {
+      res.json({ message: "Category deleted successfully" });
+    })
+    .catch((error) => {
+      res.status(400).json({ error: "Failed to delete category" });
+    });
 };
