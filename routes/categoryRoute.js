@@ -10,13 +10,13 @@ const {
 } = require("../controller/category");
 const router = express.Router();
 
-router.get("/", helloController);
-router.post("/postcategory", postCategory);
-router.get("/categorylist", getCategoryList);
-router.get("/categorydetail/:categoryId", getCategoryDetail);
+// router.get("/", helloController);
+router.post("/post", postCategory);
+router.get("/list", getCategoryList);
+router.get("/detail/:categoryId", getCategoryDetail);
 
-router.put("/updatecategory/:categoryId", updateCategory);
-router.delete("/deletecategory/:categoryId", deleteCategory);
+router.put("/update/:categoryId", updateCategory);
+router.delete("/delete/:categoryId", deleteCategory);
 //to get single category value in param
 router.param("categoryId", getSingleCategory);
 

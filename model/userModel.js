@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const uuidv1 = require("uuidv1");
 const crypto = require("crypto");
+const { ObjectId } = mongoose.Schema;
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,6 +27,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    saved_recipes: {
+      type: ObjectId,
+      ref: "Recipe",
+    },
   },
   { timestamps: true }
 );
@@ -43,6 +48,9 @@ userSchema
   });
 
 userSchema.methods = {
+  authenticate: function (plainText) {
+    return this.encryptPassword(plainText) == this.hashed_password;
+  },
   encryptPassword: function (password) {
     if (!password) return "";
     try {
@@ -52,4 +60,5 @@ userSchema.methods = {
     }
   },
 };
+
 module.exports = mongoose.model("User", userSchema);

@@ -1,8 +1,8 @@
 const Category = require("../model/categoryModel");
 
-exports.helloController = (req, res) => {
-  res.send("hello from category controller");
-};
+// exports.helloController = (req, res) => {
+//   res.send("hello from category controller");
+// };
 
 exports.postCategory = (req, res) => {
   const category = new Category(req.body);

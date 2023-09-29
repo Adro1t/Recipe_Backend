@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 
 const categoryRoute = require("./routes/categoryRoute");
+const userRoute = require("./routes/userRoute");
 
 const app = express();
 
@@ -19,7 +20,8 @@ app.use(bodyParser.json());
 app.use(morgan("dev"));
 
 // route
-app.use("/api", categoryRoute);
+app.use("/category", categoryRoute);
+app.use("/user", userRoute);
 
 const port = process.env.PORT || 8000;
 
