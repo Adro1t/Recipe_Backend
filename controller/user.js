@@ -1,5 +1,9 @@
 const User = require("../model/userModel");
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken"); //for authentication
+
+//for authorizartion
+// const expressJwt = require("express-jwt");{old}
+const { expressjwt: expressJwt } = require("express-jwt"); //{new}
 
 exports.postUser = (req, res) => {
   const user = new User(req.body);
@@ -39,3 +43,38 @@ exports.signOut = (req, res) => {
   res.clearCookie("C");
   res.json({ message: "SignOut Success" });
 };
+
+exports.userList = (req, res) => {
+  User.find()
+    .then((users) => {
+      res.json(users);
+    })
+    .catch((error) => {
+      res.status(400).json({ error });
+    });
+};
+
+exports.userById = (req, res, next, id) => {
+  User.findById(id)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((error) => {
+      res.status(400).json({ error: "failed to find" });
+    });
+};
+
+exports.userDetails = (req, res) => {
+  //to hide salt and password
+  req.user.hashed_password = req.user.salt = undefined;
+  res.json(req.user);
+};
+
+//for authorization
+
+exports.requireSignin = expressJwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ["HS256"],
+  userProperty: "auth",
+});
