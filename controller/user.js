@@ -24,6 +24,8 @@ exports.signIn = (req, res) => {
       //generate token with id and JWT_SECRET
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
 
+      //persist the token with expiry date using cookie
+      res.cookie("C", token, { expire: Date.now() + 1800000 });
       //return response with userinfo and token to frontend
       const { _id, name, email, role } = user;
       res.json({ token, user: { name, _id, email, role } });
@@ -31,4 +33,9 @@ exports.signIn = (req, res) => {
     .catch((error) => {
       res.status(400).json({ error: "not found" });
     });
+};
+
+exports.signOut = (req, res) => {
+  res.clearCookie("C");
+  res.json({ message: "SignOut Success" });
 };

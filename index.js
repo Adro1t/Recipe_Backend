@@ -5,6 +5,7 @@ const db = require("./db/connection");
 const bodyParser = require("body-parser");
 
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 const categoryRoute = require("./routes/categoryRoute");
 const userRoute = require("./routes/userRoute");
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 //middleware
 app.use(bodyParser.json());
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 // route
 app.use("/category", categoryRoute);
