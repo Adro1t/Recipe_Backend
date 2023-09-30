@@ -8,11 +8,13 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      unique: true,
     },
     email: {
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     role: {
       type: Number,
@@ -34,6 +36,9 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Define unique indexes for "name" and "email"
+userSchema.index({ name: 1, email: 1 }, { unique: true });
 
 //virtual fields
 userSchema

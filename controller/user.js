@@ -5,16 +5,60 @@ const jwt = require("jsonwebtoken"); //for authentication
 // const expressJwt = require("express-jwt");{old}
 const { expressjwt: expressJwt } = require("express-jwt"); //{new}
 
-exports.postUser = (req, res) => {
-  const user = new User(req.body);
-  user
-    .save()
-    .then((users) => {
-      res.json({ users });
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
+const Token = require("../model/token");
+const sendEmail = require("../utils/verifyEmail");
+const crypto = require("crypto");
+
+// exports.postUser = (req, res) => {
+//   const user = new User(req.body);
+//   user
+//     .save()
+//     .then((users) => {
+//       const token = new Token({
+//         token: crypto.randomBytes(16).toString("hex"),
+//         userId: users._id,
+//       });
+//       token.save((error) => {
+//         if (error) {
+//           return res.status(404).json({ error });
+//         }
+//         sendEmail({
+//           from: "no-reply@recipe.com.np",
+//           to: users.email,
+//           subject: "Email Verification Link",
+//           text: `Hello, \n\n Please verify your account by clicking below link: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
+//         });
+//       });
+//       res.json({ users });
+//     })
+//     .catch((error) => {
+//       res.status(400).json({ error });
+//     });
+// };
+
+exports.postUser = async (req, res) => {
+  try {
+    const user = new User(req.body);
+    const savedUser = await user.save();
+
+    const token = new Token({
+      token: crypto.randomBytes(16).toString("hex"),
+      userId: savedUser._id,
     });
+
+    await token.save();
+
+    sendEmail({
+      from: "no-reply@recipe.com.np",
+      to: savedUser.email,
+      subject: "Email Verification Link",
+      text: `Hello, \n\n Please verify your account by clicking the link below: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
+    });
+
+    res.json({ users: savedUser });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 exports.signIn = (req, res) => {
@@ -50,7 +94,7 @@ exports.userList = (req, res) => {
       res.json(users);
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      res.status(400).json({ error: error.message });
     });
 };
 
