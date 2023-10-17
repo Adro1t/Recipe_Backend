@@ -13,10 +13,10 @@ exports.postUser = async (req, res) => {
   try {
     const user = new User(req.body);
 
+    /* checking if the username or email provided by the user during registration is already used by another user in the database. If the username or email is already used, it returns a response with a status code of 400 (Bad Request) and an error message indicating that the username or email is already used. This is done to ensure that each user has a unique username and email in the system. */
     const userByName = await User.findOne({ name: user.name });
     const userByEmail = await User.findOne({ email: user.email });
 
-    /* checking if the username or email provided by the user during registration is already used by another user in the database. If the username or email is already used, it returns a response with a status code of 400 (Bad Request) and an error message indicating that the username or email is already used. This is done to ensure that each user has a unique username and email in the system. */
     if (userByName) {
       return res.status(400).json({ error: "Username already used" });
     }
@@ -68,6 +68,42 @@ exports.postConfirmation = async (req, res) => {
   }
 };
 
+//resend verificaiton email
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+    // at first find registered email
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).json({ error: "email provided not found in our system" });
+    }
+    //check if already verified
+    if (user.isVerified) {
+      return res.status(400).json({ error: "already verified" });
+    }
+
+    //create token to save in DataBase and send email verificaiton link
+    const token = new Token({
+      userId: user._id,
+      token: crypto.randomBytes(16).toString("hex"),
+    });
+
+    await token.save();
+
+    //send Email
+    sendEmail({
+      from: "no-reply@recipe.com.npu",
+      to: user.email,
+      subject: "Email Verification Link",
+      text: `Hello, \n\n Please verify your account by clicking the link below: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
+    });
+
+    res.json({ message: "verification link has been sent" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+//SIGNIN
 exports.signIn = async (req, res) => {
   try {
     const { Email, password } = req.body;
@@ -97,6 +133,7 @@ exports.signIn = async (req, res) => {
   }
 };
 
+//SIGNOUT
 exports.signOut = (req, res) => {
   res.clearCookie("C");
   res.json({ message: "SignOut Success" });
