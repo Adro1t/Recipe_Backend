@@ -37,9 +37,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Define unique indexes for "name" and "email"
-userSchema.index({ name: 1, email: 1 }, { unique: true });
-
 //virtual fields
 userSchema
   .virtual("password")

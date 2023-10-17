@@ -9,36 +9,22 @@ const Token = require("../model/token");
 const sendEmail = require("../utils/verifyEmail");
 const crypto = require("crypto");
 
-// exports.postUser = (req, res) => {
-//   const user = new User(req.body);
-//   user
-//     .save()
-//     .then((users) => {
-//       const token = new Token({
-//         token: crypto.randomBytes(16).toString("hex"),
-//         userId: users._id,
-//       });
-//       token.save((error) => {
-//         if (error) {
-//           return res.status(404).json({ error });
-//         }
-//         sendEmail({
-//           from: "no-reply@recipe.com.np",
-//           to: users.email,
-//           subject: "Email Verification Link",
-//           text: `Hello, \n\n Please verify your account by clicking below link: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
-//         });
-//       });
-//       res.json({ users });
-//     })
-//     .catch((error) => {
-//       res.status(400).json({ error });
-//     });
-// };
-
 exports.postUser = async (req, res) => {
   try {
     const user = new User(req.body);
+
+    const userByName = await User.findOne({ name: user.name });
+    const userByEmail = await User.findOne({ email: user.email });
+
+    /* checking if the username or email provided by the user during registration is already used by another user in the database. If the username or email is already used, it returns a response with a status code of 400 (Bad Request) and an error message indicating that the username or email is already used. This is done to ensure that each user has a unique username and email in the system. */
+    if (userByName) {
+      return res.status(400).json({ error: "Username already used" });
+    }
+
+    if (userByEmail) {
+      return res.status(400).json({ error: "Email already used" });
+    }
+
     const savedUser = await user.save();
 
     const token = new Token({
@@ -49,7 +35,7 @@ exports.postUser = async (req, res) => {
     await token.save();
 
     sendEmail({
-      from: "no-reply@recipe.com.np",
+      from: "no-reply@recipe.com.npu",
       to: savedUser.email,
       subject: "Email Verification Link",
       text: `Hello, \n\n Please verify your account by clicking the link below: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
@@ -61,26 +47,54 @@ exports.postUser = async (req, res) => {
   }
 };
 
-exports.signIn = (req, res) => {
-  const { email, password } = req.body;
-  //at first, check if email exists
-  User.findOne({ email })
-    .then((user) => {
-      if (!user.authenticate(password)) {
-        return res.status(400).json({ error: "password error" });
-      }
-      //generate token with id and JWT_SECRET
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+//confirm email after signup
+exports.postConfirmation = async (req, res) => {
+  try {
+    //first find the matching token
+    const token = await Token.findOne({ token: req.params.token });
 
-      //persist the token with expiry date using cookie
-      res.cookie("C", token, { expire: Date.now() + 1800000 });
-      //return response with userinfo and token to frontend
-      const { _id, name, email, role } = user;
-      res.json({ token, user: { name, _id, email, role } });
-    })
-    .catch((error) => {
-      res.status(400).json({ error: "not found" });
-    });
+    // if we found the valid token then find the valid user
+    const user = await User.findOne({ _id: token.userId });
+    // check if user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({ error: "already verified" });
+    }
+    //verify and save user
+    user.isVerified = true;
+    await user.save();
+    res.json({ message: "email is finally verified" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.signIn = async (req, res) => {
+  try {
+    const { Email, password } = req.body;
+
+    //at first, check if email exists
+    const user = await User.findOne({ email: Email });
+    if (!user) {
+      return res.status(400).json({ error: "user not found" });
+    }
+    if (!user.isVerified) {
+      return res.status(400).json({ error: "not verified" });
+    }
+    if (!user.authenticate(password)) {
+      return res.status(400).json({ error: "password error" });
+    }
+
+    //generate token with id and JWT_SECRET
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+
+    //persist the token with expiry date using cookie
+    res.cookie("C", token, { expire: Date.now() + 1800000 });
+    //return response with userinfo and token to frontend
+    const { _id, name, email, role } = user;
+    res.json({ token, user: { name, _id, email, role } });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 exports.signOut = (req, res) => {
