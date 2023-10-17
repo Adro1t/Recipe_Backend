@@ -106,10 +106,10 @@ exports.resendVerificationEmail = async (req, res) => {
 //SIGNIN
 exports.signIn = async (req, res) => {
   try {
-    const { Email, password } = req.body;
+    const { email, password } = req.body;
 
     //at first, check if email exists
-    const user = await User.findOne({ email: Email });
+    const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(400).json({ error: "user not found" });
     }
@@ -126,8 +126,8 @@ exports.signIn = async (req, res) => {
     //persist the token with expiry date using cookie
     res.cookie("C", token, { expire: Date.now() + 1800000 });
     //return response with userinfo and token to frontend
-    const { _id, name, email, role } = user;
-    res.json({ token, user: { name, _id, email, role } });
+    const { _id, name, Email, role } = user;
+    res.json({ token, user: { name, _id, Email, role } });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -173,3 +173,61 @@ exports.requireSignin = expressJwt({
   algorithms: ["HS256"],
   userProperty: "auth",
 });
+
+//forget password
+exports.forgetPassword = async (req, res) => {
+  try {
+    //find registered user
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).json({ error: "user not found" });
+    }
+
+    const token = new Token({
+      userId: user._id,
+      token: crypto.randomBytes(16).toString("hex"),
+    });
+
+    await token.save();
+
+    //send Email
+    sendEmail({
+      from: "no-reply@recipe.com.npu",
+      to: user.email,
+      subject: "Password Reset Link",
+      text: `Hello, \n\n Please reset your password by clicking the link below: \n http://${req.headers.host}\/user\/password\/reset\/${token.token}`,
+    });
+
+    res.json({ message: "password reset link has been sent" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+//reset password
+exports.resetPassword = async (req, res) => {
+  try {
+    // at first finding valid token
+    const token = await Token.findOne({ token: req.params.token });
+    if (!token) {
+      return res.status(400).json({ error: "invalid link" });
+    }
+
+    // if token found find valid user
+    const user = await User.findOne({
+      _id: token.userId,
+      email: req.body.email,
+    });
+    if (!user) {
+      return res.status(400).json({ error: "user not found" });
+    }
+
+    //update password
+    user.password = req.body.password;
+    await user.save();
+
+    res.json({ message: "password reset successful" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};

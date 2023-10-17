@@ -9,6 +9,8 @@ const {
   requireSignin,
   postConfirmation,
   resendVerificationEmail,
+  forgetPassword,
+  resetPassword,
 } = require("../controller/user");
 const router = express.Router();
 
@@ -19,6 +21,8 @@ router.get("/list", userList);
 router.get("/detail/:userId", requireSignin, userDetails);
 router.post("/confirmation/:token", postConfirmation);
 router.post("/resend/confirmation", resendVerificationEmail);
+router.post("/password/forget", forgetPassword);
+router.put("/password/reset/:token", resetPassword);
 
 router.param("userId", userById);
 module.exports = router;
