@@ -1,5 +1,5 @@
 const Recipe = require("../model/recipeModel");
-
+//post recipe
 exports.postRecipe = async (req, res) => {
   try {
     let recipe = new Recipe({
@@ -14,6 +14,16 @@ exports.postRecipe = async (req, res) => {
     });
     await recipe.save();
     res.json({ recipe });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+//display all recipes
+exports.recipeList = async (req, res) => {
+  try {
+    let recipes = await Recipe.find();
+    res.json({ recipes });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

@@ -5,6 +5,7 @@ const db = require("./db/connection");
 const bodyParser = require("body-parser");
 
 const morgan = require("morgan");
+// const expressValidator = require("express-validator");
 const cookieParser = require("cookie-parser");
 
 const categoryRoute = require("./routes/categoryRoute");
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 //middleware
 app.use(bodyParser.json());
 app.use(morgan("dev"));
+// app.use(expressValidator());
 app.use(cookieParser());
 
 // route
