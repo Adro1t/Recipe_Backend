@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 
 const categoryRoute = require("./routes/categoryRoute");
 const userRoute = require("./routes/userRoute");
+const recipeRoute = require("./routes/recipeRoute");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(cookieParser());
 // route
 app.use("/category", categoryRoute);
 app.use("/user", userRoute);
+app.use("/recipe", recipeRoute);
 
 const port = process.env.PORT || 8000;
 

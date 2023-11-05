@@ -11,15 +11,19 @@ const recipeSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    recipe_description: {
+    description: {
       type: String,
       required: true,
     },
-    cooking_time: {
+    prep_time: {
       type: Number,
       required: true,
     },
-    recipe_instructions: {
+    cook_time: {
+      type: Number,
+      required: true,
+    },
+    instructions: {
       type: String,
       required: true,
     },
@@ -29,17 +33,14 @@ const recipeSchema = new mongoose.Schema(
       required: true,
       ref: "Category",
     },
-    recipe_rating: {
+    rating: {
       type: Number,
       default: 0,
     },
-    Owner: {
+    owner: {
       type: ObjectId,
       required: true,
       ref: "User",
-    },
-    recipe_review: {
-      type: String,
     },
   },
   { timestamps: true }
