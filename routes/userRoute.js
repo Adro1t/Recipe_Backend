@@ -11,8 +11,9 @@ const {
   resendVerificationEmail,
   forgetPassword,
   resetPassword,
+  updateUser,
 } = require("../controller/user");
-const { userValidation } = require("../validation");
+const { updateUserValidation, userValidation } = require("../validation");
 
 const router = express.Router();
 
@@ -21,6 +22,9 @@ router.post("/signin", signIn);
 router.post("/signout", signOut);
 router.get("/list", userList);
 router.get("/detail/:userId", requireSignin, userDetails);
+
+router.put("/update/:userId", updateUserValidation, updateUser);
+
 router.post("/confirmation/:token", postConfirmation);
 router.post("/resend/confirmation", resendVerificationEmail);
 router.post("/password/forget", forgetPassword);

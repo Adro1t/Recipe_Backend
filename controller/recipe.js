@@ -45,12 +45,34 @@ exports.recipeDetails = async (req, res) => {
   res.json(req.recipe);
 };
 
-//delete product
+//delete recipe
 exports.deleteRecipe = async (req, res) => {
   try {
     let recipe = req.recipe;
     await recipe.deleteOne();
     res.json({ message: "recipe removed successfully" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+//edit/update recipe
+exports.updateRecipe = async (req, res) => {
+  try {
+    let recipe = req.recipe;
+    recipe.recipe_name = req.body.recipe_name;
+    recipe.image = req.body.image;
+    recipe.description = req.body.description;
+    recipe.prep_time = req.body.prep_time;
+    recipe.cook_time = req.body.cook_time;
+    recipe.instructions = req.body.instructions;
+    recipe.category = req.body.category;
+    recipe.owner = req.body.owner;
+    let updatedRecipe = await recipe.save();
+    if (!updatedRecipe) {
+      return res.status(400).json({ error: "failed to update recipe" });
+    }
+    res.json({ updatedRecipe });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

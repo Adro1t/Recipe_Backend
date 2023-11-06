@@ -33,7 +33,7 @@ exports.recipeValidation = [
       min: 50,
     })
     .withMessage("instructions should be more than 50 characters"),
-  //cateogry
+  //category
   body("category").notEmpty().withMessage("Category is required"),
   //owner
   body("owner").notEmpty().withMessage("Owner is required"),
@@ -60,6 +60,22 @@ exports.userValidation = [
     .isLength({ min: 8 })
     .withMessage("Password must be minimum of 8 characters"),
 
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const showError = errors.array().map((error) => error.msg)[0];
+      return res.status(400).json({ error: showError });
+    }
+    next();
+  },
+];
+
+exports.updateUserValidation = [
+  //username
+  body("name").notEmpty().withMessage("Username is required"),
+  //email
+  body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Format incorrect"),
+  //password
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
