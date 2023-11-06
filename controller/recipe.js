@@ -28,3 +28,30 @@ exports.recipeList = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+//finding recipe by id
+exports.recipeById = async (req, res, next, id) => {
+  try {
+    let recipe = await Recipe.findById(id);
+    req.recipe = recipe;
+    next();
+  } catch (error) {
+    return res.status(400).json({ error: "recipe not found" });
+  }
+};
+
+//single recipe
+exports.recipeDetails = async (req, res) => {
+  res.json(req.recipe);
+};
+
+//delete product
+exports.deleteRecipe = async (req, res) => {
+  try {
+    let recipe = req.recipe;
+    await recipe.deleteOne();
+    res.json({ message: "recipe removed successfully" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
