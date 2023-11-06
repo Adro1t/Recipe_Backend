@@ -47,3 +47,25 @@ exports.recipeValidation = [
     next();
   },
 ];
+
+exports.userValidation = [
+  //username
+  body("name").notEmpty().withMessage("Username is required"),
+  //email
+  body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Format incorrect"),
+  //password
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be minimum of 8 characters"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const showError = errors.array().map((error) => error.msg)[0];
+      return res.status(400).json({ error: showError });
+    }
+    next();
+  },
+];

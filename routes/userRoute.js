@@ -12,9 +12,11 @@ const {
   forgetPassword,
   resetPassword,
 } = require("../controller/user");
+const { userValidation } = require("../validation");
+
 const router = express.Router();
 
-router.post("/post", postUser);
+router.post("/post", userValidation, postUser);
 router.post("/signin", signIn);
 router.post("/signout", signOut);
 router.get("/list", userList);
