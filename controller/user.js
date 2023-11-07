@@ -231,19 +231,3 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
-//update userDetails
-exports.updateUser = async (req, res) => {
-  try {
-    let user = req.user;
-    user.name = req.body.name;
-    user.email = req.body.email;
-    let updatedUser = await user.save();
-    if (!updatedUser) {
-      return res.status(400).json({ error: "failed to updated user" });
-    }
-    res.json({ updatedUser });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-};

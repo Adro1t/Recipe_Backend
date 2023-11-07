@@ -8,9 +8,10 @@ const {
   updateRecipe,
 } = require("../controller/recipe");
 const { recipeValidation } = require("../validation");
+const upload = require("../middleware/file-upload");
 const router = express.Router();
 
-router.post("/post", recipeValidation, postRecipe);
+router.post("/post", upload.single("image"), recipeValidation, postRecipe);
 router.get("/list", recipeList);
 router.get("/detail/:recipeId", recipeDetails);
 router.delete("/delete/:recipeId", deleteRecipe);

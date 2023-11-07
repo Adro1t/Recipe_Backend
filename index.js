@@ -8,6 +8,8 @@ const morgan = require("morgan");
 // const expressValidator = require("express-validator");
 const cookieParser = require("cookie-parser");
 
+const path = require("path");
+
 const categoryRoute = require("./routes/categoryRoute");
 const userRoute = require("./routes/userRoute");
 const recipeRoute = require("./routes/recipeRoute");
@@ -21,8 +23,10 @@ app.get("/", (req, res) => {
 //middleware
 app.use(bodyParser.json());
 app.use(morgan("dev"));
-// app.use(expressValidator());
 app.use(cookieParser());
+
+/* setting up a static file server for serving files from the directory `public/uploads/recipes`. */
+app.use("/public/uploads/recipes", express.static(path.join(__dirname, "public/uploads/recipes")));
 
 // route
 app.use("/category", categoryRoute);

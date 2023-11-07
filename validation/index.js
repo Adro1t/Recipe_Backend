@@ -3,8 +3,6 @@ const { validationResult, body } = require("express-validator");
 exports.recipeValidation = [
   //name validation
   body("recipe_name").notEmpty().withMessage("Name is required"),
-  //image validation
-  body("image").notEmpty().withMessage("Image is required"),
   //description
   body("description")
     .notEmpty()
@@ -60,22 +58,6 @@ exports.userValidation = [
     .isLength({ min: 8 })
     .withMessage("Password must be minimum of 8 characters"),
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const showError = errors.array().map((error) => error.msg)[0];
-      return res.status(400).json({ error: showError });
-    }
-    next();
-  },
-];
-
-exports.updateUserValidation = [
-  //username
-  body("name").notEmpty().withMessage("Username is required"),
-  //email
-  body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Format incorrect"),
-  //password
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

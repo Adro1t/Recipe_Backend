@@ -8,7 +8,7 @@ exports.postRecipe = async (req, res) => {
       prep_time: req.body.prep_time,
       cook_time: req.body.cook_time,
       instructions: req.body.instructions,
-      image: req.body.image,
+      image: req.file.path,
       category: req.body.category,
       owner: req.body.owner,
     });
@@ -61,13 +61,13 @@ exports.updateRecipe = async (req, res) => {
   try {
     let recipe = req.recipe;
     recipe.recipe_name = req.body.recipe_name;
-    recipe.image = req.body.image;
     recipe.description = req.body.description;
     recipe.prep_time = req.body.prep_time;
     recipe.cook_time = req.body.cook_time;
     recipe.instructions = req.body.instructions;
     recipe.category = req.body.category;
     recipe.owner = req.body.owner;
+    recipe.image = req.file.path;
     let updatedRecipe = await recipe.save();
     if (!updatedRecipe) {
       return res.status(400).json({ error: "failed to update recipe" });
