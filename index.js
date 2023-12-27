@@ -8,6 +8,8 @@ const morgan = require("morgan");
 // const expressValidator = require("express-validator");
 const cookieParser = require("cookie-parser");
 
+const cors = require("cors");
+
 const path = require("path");
 
 const categoryRoute = require("./routes/categoryRoute");
@@ -21,6 +23,7 @@ app.get("/", (req, res) => {
 });
 
 //middleware
+app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
