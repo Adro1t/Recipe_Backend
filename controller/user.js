@@ -34,11 +34,16 @@ exports.postUser = async (req, res) => {
 
     await token.save();
 
+    const url = `${process.env.FRONTEND_URL}\/email\/confirmation/${token.token}`;
+
     sendEmail({
       from: "no-reply@recipe.com.npu",
       to: savedUser.email,
       subject: "Email Verification Link",
       text: `Hello, \n\n Please verify your account by clicking the link below: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
+      html: `<center><h1>Confirm Your Email Account</h1></center>
+      <p>Hello,</p><p>Please verify your account by clicking the link below:</p>
+      <center><button><a href="${url}">Verify Account</a></button></center>`,
     });
 
     res.json({ users: savedUser });
@@ -89,12 +94,17 @@ exports.resendVerificationEmail = async (req, res) => {
 
     await token.save();
 
+    const url = process.env.FRONTEND_URL + "/email/confirmation/" + token.token;
+
     //send Email
     sendEmail({
       from: "no-reply@recipe.com.npu",
       to: user.email,
       subject: "Email Verification Link",
       text: `Hello, \n\n Please verify your account by clicking the link below: \n http://${req.headers.host}\/user\/confirmation\/${token.token}`,
+      html: `<h1>Confirm your email account</h1>
+              <button><a href="${url}">Verify Email</a></button>
+        `,
     });
 
     res.json({ message: "verification link has been sent" });
