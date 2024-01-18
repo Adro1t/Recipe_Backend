@@ -116,10 +116,10 @@ exports.resendVerificationEmail = async (req, res) => {
 //SIGNIN
 exports.signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { Email, password } = req.body;
 
     //at first, check if email exists
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ Email: Email });
     if (!user) {
       return res.status(400).json({ error: "user not found" });
     }
@@ -136,8 +136,8 @@ exports.signIn = async (req, res) => {
     //persist the token with expiry date using cookie
     res.cookie("C", token, { expire: Date.now() + 1800000 });
     //return response with userinfo and token to frontend
-    const { _id, name, Email, role } = user;
-    res.json({ token, user: { name, _id, Email, role } });
+    const { _id, name, email, role } = user;
+    res.json({ token, user: { name, _id, email, role } });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
