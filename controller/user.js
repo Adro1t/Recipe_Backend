@@ -113,30 +113,65 @@ exports.resendVerificationEmail = async (req, res) => {
   }
 };
 
-//SIGNIN
+// //SIGNIN
+// exports.signIn = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     //at first, check if email exists
+//     User.findOne({ email }, (err, user) => {
+//       if (err || !user) {
+//         return res.status(400).json({ error: "user not found" });
+//       }
+//       if (!user.isVerified) {
+//         return res.status(400).json({ error: "not verified" });
+//       }
+//       if (!user.authenticate(password)) {
+//         return res.status(400).json({ error: "password error" });
+//       }
+
+//       //generate token with id and JWT_SECRET
+//       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+
+//       //persist the token with expiry date using cookie
+//       res.cookie("C", token, { expire: Date.now() + 1800000 });
+//       //return response with userinfo and token to frontend
+//       const { _id, name, email, role } = user;
+//       res.json({ token, user: { name, _id, email, role } });
+//     });
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
+
 exports.signIn = async (req, res) => {
   try {
-    const { Email, password } = req.body;
+    const { email, password } = req.body;
 
-    //at first, check if email exists
-    const user = await User.findOne({ Email: Email });
+    // Find user using async/await
+    const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ error: "user not found" });
     }
+
     if (!user.isVerified) {
       return res.status(400).json({ error: "not verified" });
     }
+
     if (!user.authenticate(password)) {
       return res.status(400).json({ error: "password error" });
     }
 
-    //generate token with id and JWT_SECRET
+    // Generate JWT with email included
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
 
-    //persist the token with expiry date using cookie
+    // Set cookie and send response
     res.cookie("C", token, { expire: Date.now() + 1800000 });
+
     //return response with userinfo and token to frontend
-    const { _id, name, email, role } = user;
+    const { name, _id, role } = user;
+
     res.json({ token, user: { name, _id, email, role } });
   } catch (error) {
     res.status(400).json({ error: error.message });
