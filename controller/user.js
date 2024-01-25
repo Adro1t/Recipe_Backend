@@ -113,37 +113,7 @@ exports.resendVerificationEmail = async (req, res) => {
   }
 };
 
-// //SIGNIN
-// exports.signIn = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     //at first, check if email exists
-//     User.findOne({ email }, (err, user) => {
-//       if (err || !user) {
-//         return res.status(400).json({ error: "user not found" });
-//       }
-//       if (!user.isVerified) {
-//         return res.status(400).json({ error: "not verified" });
-//       }
-//       if (!user.authenticate(password)) {
-//         return res.status(400).json({ error: "password error" });
-//       }
-
-//       //generate token with id and JWT_SECRET
-//       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-
-//       //persist the token with expiry date using cookie
-//       res.cookie("C", token, { expire: Date.now() + 1800000 });
-//       //return response with userinfo and token to frontend
-//       const { _id, name, email, role } = user;
-//       res.json({ token, user: { name, _id, email, role } });
-//     });
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// };
-
+//Signin
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -234,6 +204,7 @@ exports.forgetPassword = async (req, res) => {
     });
 
     await token.save();
+    const url = process.env.FRONTEND_URL + "/reset/password/" + token.token;
 
     //send Email
     sendEmail({
@@ -241,6 +212,8 @@ exports.forgetPassword = async (req, res) => {
       to: user.email,
       subject: "Password Reset Link",
       text: `Hello, \n\n Please reset your password by clicking the link below: \n http://${req.headers.host}\/user\/password\/reset\/${token.token}`,
+      html: `<h1>Reset your account password</h1>
+      <button><a href="${url}">Reset Password</a></button>`,
     });
 
     res.json({ message: "password reset link has been sent" });
