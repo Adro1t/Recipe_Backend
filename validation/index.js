@@ -67,3 +67,19 @@ exports.userValidation = [
     next();
   },
 ];
+
+exports.categoryValidation = [
+  body("category_Name")
+    .notEmpty()
+    .withMessage("Category Name is required")
+    .isLength({ min: 3 })
+    .withMessage("Category Name must be atleast 3 characters"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const showError = errors.array().map((error) => error.msg)[0];
+      return res.status(400).json({ error: showError });
+    }
+    next();
+  },
+];

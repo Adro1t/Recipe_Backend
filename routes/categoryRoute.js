@@ -8,10 +8,11 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../controller/category");
+const { categoryValidation } = require("../validation");
 const router = express.Router();
 
 // router.get("/", helloController);
-router.post("/post", postCategory);
+router.post("/post", categoryValidation, postCategory);
 router.get("/list", getCategoryList);
 router.get("/detail/:categoryId", getCategoryDetail);
 
