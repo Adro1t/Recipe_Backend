@@ -11,6 +11,8 @@ exports.recipeValidation = [
       min: 20,
     })
     .withMessage("description should be more than 20 characters"),
+  //ingredients
+  body("ingredients").notEmpty().withMessage("Ingredients is required"),
   //prep time
   body("prep_time")
     .notEmpty()

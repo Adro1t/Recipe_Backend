@@ -20,7 +20,7 @@ exports.postCategory = async (req, res) => {
 exports.getCategoryList = (req, res) => {
   Category.find()
     .then((result) => {
-      res.json({ result });
+      res.json(result);
     })
     .catch((error) => {
       res.status(400).json({ error: "failed to fetch" });

@@ -1,9 +1,11 @@
 const Recipe = require("../model/recipeModel");
+
 //post recipe
 exports.postRecipe = async (req, res) => {
   try {
     let recipe = new Recipe({
       recipe_name: req.body.recipe_name,
+      ingredients: req.body.ingredients,
       description: req.body.description,
       prep_time: req.body.prep_time,
       cook_time: req.body.cook_time,
@@ -22,7 +24,14 @@ exports.postRecipe = async (req, res) => {
 //display all recipes
 exports.recipeList = async (req, res) => {
   try {
-    let recipes = await Recipe.find();
+    let order = new req.query.order() ? req.query.order : "asc";
+    let sortBy = req.query.order ? req.query.sortBy : "_id";
+    let limit = req.query.order ? parseInt(req.query.limit) : 200;
+
+    const recipes = await Recipe.find()
+      .populate("category")
+      .sort([[sortBy, order]])
+      .limit(limit);
     res.json({ recipes });
   } catch (error) {
     return res.status(400).json({ error: error.message });
@@ -61,6 +70,7 @@ exports.updateRecipe = async (req, res) => {
   try {
     let recipe = req.recipe;
     recipe.recipe_name = req.body.recipe_name;
+    recipe.ingredients = req.body.ingredients;
     recipe.description = req.body.description;
     recipe.prep_time = req.body.prep_time;
     recipe.cook_time = req.body.cook_time;
